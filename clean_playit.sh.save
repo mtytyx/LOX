@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Detén y elimina cualquier contenedor relacionado con Playit
+docker stop $(docker ps -aq --filter "name=playit")
+docker rm $(docker ps -aq --filter "name=playit")
+
+# Elimina las imágenes de Docker relacionadas con Playit
+docker images | grep "playit" | awk '{print $3}' | xargs docker rmi
+
+# Borra los archivos y directorios asociados
+find ~ -name "*playit*" -exec rm -rf {} +
+
+# Revierte cualquier cambio en la configuración del sistema
+sed -i '/playit/d' ~/.bashrc
+sed -i '/playit/d' ~/.zshrc
+
+# Elimina cualquier variable de entorno relacionada
+unset PLAYIT_VAR
+
+# Elimina los registros de Playit
+find /var/log -name "*playit*" -exec rm -rf {} +
+
+echo "Limpieza de Playit completada."
